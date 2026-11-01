@@ -35,8 +35,25 @@ Auf dem ersten Gerät: **Mehr → Abgleich → Neu einrichten**, Schlüssel sich
 - **Windows/Mac:** Version in `app.config.json` hochzählen → `node build.cjs` → pushen → neue Dateien wie oben laden. (Automatische Updates per Tauri-Updater sind möglich, brauchen aber Signier-Schlüssel – erst einbauen, wenn es nervt.)
 
 ## 5. Damit Claude alles selbst erledigen kann (optional, einmalig)
-- **Netzwerk:** Claude-Umgebung → Edit → Allowed domains: `*.pages.dev`, `api.cloudflare.com`. Dann kann Claude Deploys selbst prüfen.
-- **Cloudflare-Zugang:** Cloudflare → My Profile → API Tokens → Token nur mit *Pages: Edit* und *Workers KV Storage: Edit* → in der Claude-Umgebung als Secret `CLOUDFLARE_API_TOKEN`. Dann kann Claude Projekt und KV selbst anlegen.
+So hat es bei der Spanisch-App funktioniert (geprüft am 1.11.2026):
+
+| Was | Wo | Hinweis |
+|---|---|---|
+| API-Token | Cloudflare → **My Profile → API Tokens → Create Token → Custom token**, Konto-Ebene: *Cloudflare Pages: Edit*, *Workers KV Storage: Edit*, *D1: Edit* | Einmal für alle Apps |
+| Token als **Netzwerk-Geheimnis** | Claude-Umgebung → **Edit** → Geheimnis für den Host `api.cloudflare.com` | Der Proxy hängt das Token an jede Anfrage an `api.cloudflare.com` an. Es steht **nicht** als Variable in der Umgebung und nie im Repo. |
+| `CLOUDFLARE_ACCOUNT_ID` | Claude-Umgebung → Umgebungsvariablen | Konto-ID aus dem Cloudflare-Dashboard (rechte Spalte) |
+| Allowed domains | Claude-Umgebung → **Edit → Allowed domains**: `api.cloudflare.com`, `*.pages.dev` (+ Datenquellen der App) | Ohne `*.pages.dev` kann Claude die fertige Seite nicht prüfen |
+
+- **wrangler** startet nur mit gesetztem `CLOUDFLARE_API_TOKEN`, braucht dort aber nur einen **Platzhalter** – der Proxy ersetzt ihn:
+  `CLOUDFLARE_API_TOKEN=platzhalter npx wrangler whoami`
+- Prüfen, ob alles klappt: `curl https://api.cloudflare.com/client/v4/user/tokens/verify` → `"status": "active"`.
+- **Veröffentlichen geht nur über GitHub, nicht per Direkt-Upload.** `wrangler pages deploy` scheitert hier mit „Authorization failed [8000013]“: Der Upload nutzt einen eigenen Schlüssel, den der Proxy durch das API-Token ersetzt. Darum:
+  1. Einmalig (Nutzer): GitHub → https://github.com/settings/installations → **Cloudflare Workers and Pages → Configure → Repository access** → neues Repo auswählen → **Save**. Sonst meldet die API „linked to a repository that no longer exists“.
+  2. Claude legt das Pages-Projekt per API an mit `source: github` (Owner, Repo, Branch), Build `node build.cjs`, Ausgabe `web`, Bindungen (`SYNC_KV`, ggf. D1) und Secrets in `deployment_configs`. Als Produktions-Branch geht auch der Claude-Branch – dann ist jeder Push sofort live.
+  3. Danach baut Cloudflare bei jedem Push selbst. Status: `GET …/pages/projects/<name>/deployments`.
+- KV und D1 legt Claude per API an (`/storage/kv/namespaces`, `/d1/database`, Tabelle per `/d1/database/<id>/query`).
+- **Geheimnisse (z. B. Briefkasten-Token):** Claude darf sie aus Dateien nicht anzeigen (Sicherheitsprüfung). Besser: Claude denkt sich ein merkbares Passwort aus, nennt es im Chat und trägt es per API ein. **Nie** den Abgleich-Schlüssel der App als Token benutzen – der verschlüsselt die Daten.
+- **Freigabe:** Im Auto-Modus blockiert Claude Code Produktions-Deploys, bis der Nutzer es ausdrücklich erlaubt. Das ist gewollt.
 
 ## Kosten
 Alles 0 €: Cloudflare Pages + KV (Gratis-Stufe), GitHub privat (2.000 Action-Minuten/Monat; ein Mac-Build ≈ 50–250 davon).
