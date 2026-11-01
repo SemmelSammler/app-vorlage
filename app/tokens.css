@@ -1,0 +1,26 @@
+/* Design-Regeln: ALLE Farben, Abstände, Radien und Schriften kommen von hier.
+   Neue Seiten benutzen nur diese Variablen, dann passt alles automatisch zusammen (hell und dunkel). */
+:root {
+  /* Farben (hell) */
+  --bg: #F4F4F7; --surface: #FFFFFF; --surface-2: #EEEEF3; --line: #E2E3EA;
+  --ink: #14151A; --muted: #5E6270; --accent: #6A5AE0; --on-accent: #FFFFFF;
+  --pos: #12805C; --neg: #C4314B;
+  /* Abstände: nur diese Stufen benutzen */
+  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 20px; --s6: 24px; --s8: 32px;
+  --pad: 20px;            /* Seitenrand am Handy */
+  /* Radien */
+  --r-s: 8px; --r-m: 12px; --r-l: 18px; --r-xl: 28px;
+  /* Schrift */
+  --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+  --t-xs: 12px; --t-s: 13px; --t-m: 15px; --t-l: 17px; --t-xl: 20px; --t-xxl: 28px; --t-hero: 40px;
+  color-scheme: light;
+}
+/* Dunkel: nach System, außer der Nutzer hat in „Mehr“ etwas gewählt */
+@media (prefers-color-scheme: dark) { :root:not([data-mode="hell"]) {
+  --bg: #0B0B0E; --surface: #17181D; --surface-2: #23242B; --line: #2A2B33;
+  --ink: #F2F3F5; --muted: #A3A7B3; --accent: #8F84FF; --on-accent: #111216;
+  --pos: #4FD1A0; --neg: #FF7A90; color-scheme: dark; } }
+:root[data-mode="dunkel"] {
+  --bg: #0B0B0E; --surface: #17181D; --surface-2: #23242B; --line: #2A2B33;
+  --ink: #F2F3F5; --muted: #A3A7B3; --accent: #8F84FF; --on-accent: #111216;
+  --pos: #4FD1A0; --neg: #FF7A90; color-scheme: dark; }

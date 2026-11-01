@@ -1,0 +1,10 @@
+{
+  "name": "Meine App",
+  "id": "meineapp",
+  "beschreibung": "Meine eigene App",
+  "server": "",
+  "farbe": "#8F84FF",
+  "hintergrund": "#111216",
+  "bundleId": "de.meineapp.app",
+  "version": "0.1.0"
+}
