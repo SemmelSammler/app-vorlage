@@ -47,8 +47,13 @@ So hat es bei der Spanisch-App funktioniert (geprüft am 1.11.2026):
 - **wrangler** startet nur mit gesetztem `CLOUDFLARE_API_TOKEN`, braucht dort aber nur einen **Platzhalter** – der Proxy ersetzt ihn:
   `CLOUDFLARE_API_TOKEN=platzhalter npx wrangler whoami`
 - Prüfen, ob alles klappt: `curl https://api.cloudflare.com/client/v4/user/tokens/verify` → `"status": "active"`.
-- Projekt, KV und D1 legt Claude dann selbst über die API an. Hochladen: `CLOUDFLARE_API_TOKEN=platzhalter npx wrangler pages deploy web --project-name <name> --branch main`.
-- **Freigabe:** Im Auto-Modus blockiert Claude Code das Hochladen in die Produktion, bis der Nutzer es ausdrücklich erlaubt (Rückfrage oder Berechtigungsregel). Das ist gewollt.
+- **Veröffentlichen geht nur über GitHub, nicht per Direkt-Upload.** `wrangler pages deploy` scheitert hier mit „Authorization failed [8000013]“: Der Upload nutzt einen eigenen Schlüssel, den der Proxy durch das API-Token ersetzt. Darum:
+  1. Einmalig (Nutzer): GitHub → https://github.com/settings/installations → **Cloudflare Workers and Pages → Configure → Repository access** → neues Repo auswählen → **Save**. Sonst meldet die API „linked to a repository that no longer exists“.
+  2. Claude legt das Pages-Projekt per API an mit `source: github` (Owner, Repo, Branch), Build `node build.cjs`, Ausgabe `web`, Bindungen (`SYNC_KV`, ggf. D1) und Secrets in `deployment_configs`. Als Produktions-Branch geht auch der Claude-Branch – dann ist jeder Push sofort live.
+  3. Danach baut Cloudflare bei jedem Push selbst. Status: `GET …/pages/projects/<name>/deployments`.
+- KV und D1 legt Claude per API an (`/storage/kv/namespaces`, `/d1/database`, Tabelle per `/d1/database/<id>/query`).
+- **Geheimnisse (z. B. Briefkasten-Token):** Claude darf sie aus Dateien nicht anzeigen (Sicherheitsprüfung). Besser: Claude denkt sich ein merkbares Passwort aus, nennt es im Chat und trägt es per API ein. **Nie** den Abgleich-Schlüssel der App als Token benutzen – der verschlüsselt die Daten.
+- **Freigabe:** Im Auto-Modus blockiert Claude Code Produktions-Deploys, bis der Nutzer es ausdrücklich erlaubt. Das ist gewollt.
 
 ## Kosten
 Alles 0 €: Cloudflare Pages + KV (Gratis-Stufe), GitHub privat (2.000 Action-Minuten/Monat; ein Mac-Build ≈ 50–250 davon).

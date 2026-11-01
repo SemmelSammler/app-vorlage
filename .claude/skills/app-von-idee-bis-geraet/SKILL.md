@@ -41,6 +41,9 @@ Fertig drin, meist unverändert übernehmen:
 - **`<name>.pages.dev` ist weltweit einmalig.** Ist der Name vergeben, hängt Cloudflare ein Kürzel an (`bosal-2t8`); unter `bosal.pages.dev` lief eine fremde Seite. Echte Adresse im Projekt nachsehen.
 - Cloudflare „Create application“ führt standardmäßig zu **Workers**. Für Pages: Link ganz unten „Looking to deploy Pages?“.
 - Diese Cloud-Umgebung erreicht `*.pages.dev` nur, wenn es unter Allowed domains steht. Sonst den Nutzer prüfen lassen (`/api/sync/000…0`).
+- **Deploy hinter dem Proxy**: `wrangler pages deploy` scheitert (Proxy ersetzt den Upload-Schlüssel, Fehler 8000013). Pages-Projekt per API **mit GitHub verbunden** anlegen; vorher muss der Nutzer der GitHub-App „Cloudflare Workers and Pages“ Zugriff auf das Repo geben. Details: ANLEITUNG Abschnitt 5.
+- **Tab-Leiste rutscht hoch** (iPhone-Home-Bildschirm, kurze Seiten): `.is-phone .main { min-height: 100vh; }` – ist in der Vorlage drin, nicht entfernen.
+- **Secrets**: Claude kann gespeicherte Tokens nicht im Chat anzeigen → merkbares Passwort ausdenken, nennen, per API setzen. Nie den Abgleich-Schlüssel als Token nehmen.
 - **Notch**: Bei `black-translucent` läuft Inhalt unter die Uhr. Keine Regel mit `!important` darf den oberen Abstand überschreiben (war der Fehler bei Obol).
 - **Persönliche Daten** nie in Code/Build. Bei Obol mussten sie am Ende mühsam entfernt werden.
 - **GitHub**: Repos anlegen und Tags/Releases sind für Claude gesperrt → Nutzer legt Repo an (Template-Knopf), Downloads kommen als Actions-Artefakte (90 Tage). `workflow_dispatch` geht nur aus dem Standard-Branch. Mac-Minuten zählen 10-fach → nicht bei jedem Push bauen.

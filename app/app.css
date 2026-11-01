@@ -55,6 +55,9 @@ button { cursor: pointer; }
 /* ---------- Handy (Klasse html.is-phone kommt aus app.js) ---------- */
 .is-phone .top { display: none; }
 .is-phone .main { padding: calc(env(safe-area-inset-top, 0px) + 14px) var(--pad) calc(112px + env(safe-area-inset-bottom, 0px)); gap: var(--s4); }
+/* iOS-Home-Bildschirm-App: Ist die Seite kürzer als der Bildschirm, rutscht die fixierte Tab-Leiste nach oben
+   (bei der Spanisch-App auf kurzen Seiten gesehen). Darum füllt der Hauptbereich immer den ganzen Bildschirm. */
+.is-phone .main { min-height: 100vh; }
 .is-phone .notch { position: fixed; top: 0; left: 0; right: 0; height: env(safe-area-inset-top, 0px); background: var(--bg); z-index: 45; }
 .tabbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; display: grid; grid-template-columns: repeat(3, 1fr); align-items: center; padding: 6px var(--s2) calc(env(safe-area-inset-bottom, 0px) + 8px); background: color-mix(in srgb, var(--surface) 94%, transparent); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); border-top: 1px solid var(--line); }
 .tabbar button { border: 0; background: none; display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 11px; font-weight: 600; color: var(--muted); padding: var(--s1) 0; }
