@@ -1,7 +1,7 @@
 // Schnelle Prüfung vor jedem Push/Deploy: node test/check.cjs
 // 1. Baut die App ohne Beispieldaten. 2. Prüft, dass keine Beispiel- oder privaten Daten drin sind.
 // 3. Prüft, dass das Skript fehlerfrei geladen werden kann. 4. Prüft den Abgleich-Server.
-const fs = require("fs"), path = require("path"), { execSync } = require("child_process");
+const fs = require("fs"), path = require("path"), { execSync } = require("child_process"), { pathToFileURL } = require("url");
 const root = path.join(__dirname, ".."); let fehler = 0;
 function ok(cond, text) { console.log((cond ? "✓ " : "✗ ") + text); if (!cond) fehler++; }
 
@@ -17,7 +17,7 @@ scripts.forEach((s, i) => { try { new Function(s); ok(true, "Skript " + (i + 1) 
 ["manifest.webmanifest", "sw.js", "icons/icon-192.png", "icons/apple-touch-icon.png"].forEach((f) => ok(fs.existsSync(path.join(root, "web", f)), "web/" + f + " vorhanden"));
 
 (async () => {
-  const fn = await import(path.join(root, "functions/api/sync/[id].js"));
+  const fn = await import(pathToFileURL(path.join(root, "functions/api/sync/[id].js")).href);
   const store = new Map(), env = { SYNC_KV: { get: async (k) => store.get(k) ?? null, put: async (k, v) => { store.set(k, v); } } };
   const id = "0123456789abcdef0123456789abcdef", tok = "t".repeat(40);
   const call = (method, body, token) => fn.onRequest({ env, params: { id }, request: new Request("http://x/api/sync/" + id, { method, headers: { "X-Sync-Token": token || tok }, body: body && JSON.stringify(body) }) });

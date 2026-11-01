@@ -1,9 +1,9 @@
 // Lokaler Testserver: node tools/server.mjs [port]
 // Liefert web/ aus und spielt den Abgleich-Server (functions/api/sync) mit einem Speicher im Arbeitsspeicher nach.
 // So lässt sich alles (auch der Abgleich zwischen zwei „Geräten“) ohne Cloudflare testen.
-import http from "node:http"; import fs from "node:fs"; import path from "node:path"; import { fileURLToPath } from "node:url";
+import http from "node:http"; import fs from "node:fs"; import path from "node:path"; import { fileURLToPath, pathToFileURL } from "node:url";
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
-const fn = await import(path.join(root, "functions/api/sync/[id].js"));
+const fn = await import(pathToFileURL(path.join(root, "functions/api/sync/[id].js")).href);
 const store = new Map();
 const env = { SYNC_KV: { get: async (k) => store.get(k) ?? null, put: async (k, v) => { store.set(k, v); } } };
 const types = { ".html": "text/html; charset=utf-8", ".js": "text/javascript", ".webmanifest": "application/manifest+json", ".png": "image/png", ".svg": "image/svg+xml" };
